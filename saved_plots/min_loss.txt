@@ -1,0 +1,4 @@
+minimum loss reached for Uniform (0.000000,1.000000) =  0.032764
+minimum loss reached for Normal (0.500000,0.100000) =  0.006918
+minimum loss reached for Normal (0.800000,0.100000) =  0.008510
+minimum loss reached for Normal (0.200000,0.100000) =  0.004379
