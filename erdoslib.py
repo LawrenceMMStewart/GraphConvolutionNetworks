@@ -133,8 +133,8 @@ class ERdat(object):
 		"""
 
 		dg,p= self.__getitem__(idx)
-		nx.draw_networkx(dg.to_networkx(),node_color='b',node_size=100,with_labels=False,alpha=0.7)
-		plt.title("Graph %d with p= %s" % (idx,p))
+		nx.draw_networkx(dg.to_networkx(),node_color='#760a3a',node_size=100,with_labels=False,alpha=0.8)
+		plt.title(r"Graph %d with $p= %s$" % (idx,round(p,3)))
 		plt.show()
 
 	#plot sample i 
