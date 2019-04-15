@@ -135,6 +135,15 @@ class ERdat(object):
 		dg,p= self.__getitem__(idx)
 		nx.draw_networkx(dg.to_networkx(),node_color='#760a3a',node_size=100,with_labels=False,alpha=0.8)
 		plt.title(r"Graph %d with $p= %s$" % (idx,round(p,3)))
+		plt.axis("off")
+		plt.tick_params(
+				axis='both',       # changes apply to the x-axis
+				which='both',      # both major and minor ticks are affected
+				left=False,
+				bottom=False,      # ticks along the bottom edge are off
+				top=False,         # ticks along the top edge are off
+				labelbottom=False, # labels along y axis are turned off
+				labelleft=False)   # labels along the bottom edge  are turned off
 		plt.show()
 
 	#plot sample i 
@@ -148,7 +157,7 @@ class ERdat(object):
 		Plot of graph
 		"""
 		plt.figure(figsize=(14, 8))  
-		plt.suptitle(r"$p$ value sampled from %s [%f ,%f ] "%(self.distribution,round(self.metaparams[0],3),round(self.metaparams[1],3))
+		plt.suptitle(r"$p$ value sampled from %s [%f ,%f ] "%(self.distribution,round(self.metaparams[0],3),round(self.metaparams[1],3)))
 		for i in range(6):
 			plt.subplot(2,3,i+1)
 			samp=self.__getitem__(i)
@@ -162,12 +171,29 @@ class ERdat(object):
 				bottom=False,      # ticks along the bottom edge are off
 				top=False,         # ticks along the top edge are off
 				labelbottom=False, # labels along y axis are turned off
-				labelleft=False)   # labels along the bottom edge are
-			# ax = plt.gca()
-			# ax.set_facecolor('#c9deff')
-
-	
+				labelleft=False)   # labels along the bottom edge  are turned off
 		plt.show()
+
+
+	def __create__histdat__(self):
+		"""
+		Creates a set of graphs with p=0.1 -> 0.9 in steps of 
+		0.1. Used to test weakeness of graph.
+
+		Returns
+		-------
+		Dataset of graphs p = 0.1 -> 0.9
+
+		"""
+		test_uni=[]
+		pvals=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+		for p in pvals:
+			num_v = np.random.randint(self.min_num_v, self.max_num_v)
+			g = nx.binomial_graph(num_v,p)
+			test_uni.append((g,p))
+		return test_uni
+
+
 
 
 
