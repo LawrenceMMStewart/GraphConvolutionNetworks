@@ -113,14 +113,23 @@ class Classifier(nn.Module):
         return lin_out
 
 
-
+#define the maximum likelihood estimator for p from a graph:
+def max_likelihood_estimator(g):
+    """
+    Input: nx.graph
+    Output: maximum likelihood estimate for p    
+    """
+    adj_mat=nx.to_numpy_array(g)
+    n=adj_mat.shape[0]
+    sliding_row_sums=[np.sum(adj_mat[i][i+1:]) for i in range(n)]
+    return 1/(n*(n-1)/2)*np.sum(sliding_row_sums)
 
 #control panel- dictionary of all parameters and booleans for training and testing -- modify to change tests:
 control= {
     
-    'epochs': 150, #number of training epochs 100 
+    'epochs': 2, #number of training epochs 
     'batch_size':64, 
-    'hidden_layer_size':100 ,
+    'hidden_layer_size':100, #100 recommended for speed on i7 core 16gb ram cpu
     'tr_no':400, # number of samples for training set
     'te_no':100, # number of samples for test set
     'min_no':5, # minimum number of nodes for each graph
@@ -139,24 +148,34 @@ control= {
     "met_normal2":[0.8,0.1],
     "met_normal3":[0.2,0.1],
 
-    #save lossfigures:
+    #save lossfigures and histograms:
     "savl_uniform1":True,
     "savl_normal1":True,
     "savl_normal2":True,
     "savl_normal3":True,
+    "save_hists":True,
 
-    #display plots:
-    "display_plts": False,
+    #display loss plots:
+    "display_plts_loss": True,
+
+    #display hist plots:
+    "display_plts_hist": True,
 
     #save weights:
     "save_weights":True,
 
     #write minimum loss to file for each dist
-    "write_min":True
+    "write_min":True,
+    #write test error to file for each dist
+    "write_test_loss":True
+
+
 }
 
 
 run_list=[]
+
+hists=[]
 
 #collect all runs to the list
 
@@ -187,13 +206,15 @@ for dat in run_list:
     testset=dat[1]
 
     # Create model
-    model = Classifier(1, control['hidden_layer_size']) #there was no () at end before #norm 256
+    model = Classifier(1, control['hidden_layer_size']) 
     loss_func = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     model.train()
 
 
     epoch_losses = []
+    #check this line 
+    print("Training GNN "+trainset.get_distribution_label(),end="\n")
 
     for epoch in range(control['epochs']):
 
@@ -213,7 +234,8 @@ for dat in run_list:
             epoch_loss += loss.detach().item()
         epoch_loss /= (iter + 1)
         print('Epoch {}, loss {:.4f}'.format(epoch, epoch_loss))
-        epoch_losses.append(epoch_loss)
+        #save the sqrt of the mean square error of a batch
+        epoch_losses.append(np.sqrt(epoch_loss))
 
 
     model.eval()
@@ -228,9 +250,9 @@ for dat in run_list:
 
     plt.plot(epoch_losses,alpha=0.7,label=dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1]))
     plt.xlabel("epoch")
-    plt.ylabel("loss")
+    plt.ylabel(r"$\sqrt{MSE}$")
     plt.legend()
-    plt.title('Loss through training')
+    plt.title('Comparison of loss throughout training')
     plt.grid('on')
     ax = plt.gca()
     ax.set_facecolor('#D9E6E8')
@@ -239,7 +261,7 @@ for dat in run_list:
     if run_list[2] and dat==run_list[-1]:
         pylab.savefig('saved_plots/Loss.png')
     #display plots on last 
-    if control["display_plts"] and dat==run_list[-1]:
+    if control["display_plts_loss"] and dat==run_list[-1]:
         plt.show()
     #save weights
     if control["save_weights"]:
@@ -247,8 +269,91 @@ for dat in run_list:
     #write min loss:
     if control['write_min']:
         f.write("minimum loss reached for "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(min(epoch_losses))+'\n')
+    if control['write_test_loss']:
+        print(pred_Y)
+        print(test_Y)
+        print(loss(pred_Y,test_Y))
+        print(loss(pred_Y,test_Y).detach.numpy())
+        print(loss(pred_Y,test_Y).detach.numpy()[0])
+        f.write("Error on trainset "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(loss(pred_Y,test_Y).detach.numpy()[0])+'\n')
 
 
 
-#to do: batch sizes, more explanations, mathematical theory ... (optimisers and learning rates dataset sizes)
+
+        #form of list and p 
+    #evaluate performance on various p values:
+    hist_dat=trainset.__create__histdat__(10)
+    hist_preds=[]
+    hist_mles=[]
+
+    for (g_list,p) in hist_dat:
+        errors_gnn=[]
+        errors_mles=[]
+        for g in g_list:
+            pred=model(dgl.DGLGraph(g))
+            #record the square root of square error
+            errors_gnn.append(abs(p-pred).detach().numpy()[0])
+            errors_mles.append(abs(p-max_likelihood_estimator(g)))
+        hist_preds.append(np.mean(errors_gnn))
+        hist_mles.append(np.mean(errors_mles))
+            
+    #save the error for the GNN, the MLE and save the name of the distribution the GNN was trained on
+    hists.append((hist_preds,hist_mles,trainset.get_distribution_label()))
+
+
+
+
+#plot each histogram:
+for i in range(len(hists)):
+    gnn_errors=hists[i][0]
+    mle_errors=hists[i][1]
+    name_of_dist=hists[i][2]
+    # data to plot
+    n_groups = len(gnn_errors)
+         
+    # create plot
+    fig, ax = plt.subplots()
+    index = np.arange(n_groups)
+    bar_width = 0.35
+    opacity = 0.8
+    ax.set_facecolor('#D9E6E8')
+     
+
+    rects1 = plt.bar(index, gnn_errors, bar_width,alpha=opacity,color='b',label='GNN')
+  
+    rects2 = plt.bar(index + bar_width, mle_errors, bar_width,alpha=opacity,color='g',label='MLE')
+     
+    plt.xlabel('p')
+    plt.ylabel(r"$\sqrt{MSE}$")
+    plt.title("Errors for varied p "+name_of_dist)
+    plt.xticks(index + bar_width, tuple([float("%.2f" % (0.1*(i+1))) for i in range(n_groups)])) 
+    plt.legend()
+    plt.tight_layout()
+    if control["save_hists"]:
+        pylab.savefig('saved_plots/Hist'+name_of_dist+'.png')
+    if control["display_plts_hist"]:
+        plt.show()
+
+
+
+
+
+
+
+
+    # y_vals=hists[i]
+    # plt.subplot(2,2,i+1)
+    # bins=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+    # plt.hist(y_vals,bins,alpha=0.5)
+    # ax = plt.gca()
+    # ax.set_facecolor('#D9E6E8')
+    # plt.xlabel(r"$\sqrt{MSE}$")
+    # plt.title(run_list[i][3]+' '+'(%f,%f)'%(run_list[i][4][0],run_list[i]dat[4][1]) )
+
+
+
+
+
+
+
 

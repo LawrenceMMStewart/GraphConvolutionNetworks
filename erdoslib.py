@@ -175,23 +175,39 @@ class ERdat(object):
 		plt.show()
 
 
-	def __create__histdat__(self):
+	def __create__histdat__(self,no_g_per_val):
 		"""
 		Creates a set of graphs with p=0.1 -> 0.9 in steps of 
-		0.1. Used to test weakeness of graph.
-
+		0.1. Used to test weakness of GNN on p_vals
+		
+		Parameters
+		---------
+		no_g_per_val : int
+			Number of graphs per p value
 		Returns
 		-------
-		Dataset of graphs p = 0.1 -> 0.9
+		Dataset of graphs p = 0.1 -> 0.9, in form ([list],p) for each p 
 
 		"""
 		test_uni=[]
 		pvals=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
 		for p in pvals:
-			num_v = np.random.randint(self.min_num_v, self.max_num_v)
-			g = nx.binomial_graph(num_v,p)
-			test_uni.append((g,p))
+			p_list=[]
+			for i in range(no_g_per_val):
+				num_v = np.random.randint(self.min_num_v, self.max_num_v)
+				g = nx.binomial_graph(num_v,p)
+				p_list.append(g)
+			test_uni.append((p_list,p))
 		return test_uni
+
+	def get_distribution_label(self):
+		"""
+		Returns
+		-------
+		String consisting of name of 
+		distribution used to sample graphs
+		"""
+		return self.distribution+" "+str([float("%.2f" % i) for i in self.metaparams ])
 
 
 
