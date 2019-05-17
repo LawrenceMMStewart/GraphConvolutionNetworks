@@ -24,6 +24,7 @@ import dgl
 from dgl import DGLGraph
 import matplotlib.pyplot as plt
 import random
+import pylab
 #list all classes that are imported if we use the command from ERdat import *
 __all__ = ['ERdat']
 
@@ -157,7 +158,7 @@ class ERdat(object):
 		Plot of graph
 		"""
 		plt.figure(figsize=(14, 8))  
-		plt.suptitle(r"$p$ value sampled from %s [%f ,%f ] "%(self.distribution,round(self.metaparams[0],3),round(self.metaparams[1],3)))
+		plt.suptitle(r"$p$ value sampled from %s [%.2f ,%.2f ] "%(self.distribution,round(self.metaparams[0],3),round(self.metaparams[1],3)))
 		for i in range(6):
 			plt.subplot(2,3,i+1)
 			samp=self.__getitem__(i)
@@ -172,6 +173,33 @@ class ERdat(object):
 				top=False,         # ticks along the top edge are off
 				labelbottom=False, # labels along y axis are turned off
 				labelleft=False)   # labels along the bottom edge  are turned off
+		plt.show()
+
+	def __plotsamplesave__(self):
+		"""
+		Plots a sample size of 6 graphs and saves it (expecting a folder called saved_plots)
+
+		Returns
+		-------
+		Plot of graph
+		"""
+		plt.figure(figsize=(14, 8))  
+		plt.suptitle(r"$p$ value sampled from %s [%.2f ,%.2f ] "%(self.distribution,self.metaparams[0],self.metaparams[1]))
+		for i in range(6):
+			plt.subplot(2,3,i+1)
+			samp=self.__getitem__(i)
+			plt.title(r"$p = %s$" %round(samp[1],3))
+			nx.draw_networkx(samp[0].to_networkx(),node_color='#760a3a',node_size=100,with_labels=False,alpha=0.8)
+			plt.axis("off")
+			plt.tick_params(
+				axis='both',       # changes apply to the x-axis
+				which='both',      # both major and minor ticks are affected
+				left=False,
+				bottom=False,      # ticks along the bottom edge are off
+				top=False,         # ticks along the top edge are off
+				labelbottom=False, # labels along y axis are turned off
+				labelleft=False)   # labels along the bottom edge  are turned off
+		pylab.savefig('saved_plots/Sample %s [%.2f ,%.2f ] .png'%(self.distribution,self.metaparams[0],self.metaparams[1]))
 		plt.show()
 
 

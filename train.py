@@ -127,7 +127,7 @@ def max_likelihood_estimator(g):
 #control panel- dictionary of all parameters and booleans for training and testing -- modify to change tests:
 control= {
     
-    'epochs': 2, #number of training epochs 
+    'epochs': 75, #number of training epochs 
     'batch_size':64, 
     'hidden_layer_size':100, #100 recommended for speed on i7 core 16gb ram cpu
     'tr_no':400, # number of samples for training set
@@ -268,14 +268,11 @@ for dat in run_list:
         torch.save(model.state_dict(),"saved_weights/"+dat[3]+'(%f,%f)'%(dat[4][0],dat[4][1])+".pt")
     #write min loss:
     if control['write_min']:
-        f.write("minimum loss reached for "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(min(epoch_losses))+'\n')
+        f.write("--------------------------------"+'\n')
+        f.write("minimum loss reached on trainset "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(min(epoch_losses))+'\n')
+        f.write("--------------------------------"+'\n')
     if control['write_test_loss']:
-        print(pred_Y)
-        print(test_Y)
-        print(loss(pred_Y,test_Y))
-        print(loss(pred_Y,test_Y).detach.numpy())
-        print(loss(pred_Y,test_Y).detach.numpy()[0])
-        f.write("Error on trainset "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(loss(pred_Y,test_Y).detach.numpy()[0])+'\n')
+        f.write("MSE for testset prediction "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(loss_func(pred_Y.detach(),test_Y).numpy())+'\n')
 
 
 
@@ -299,7 +296,6 @@ for dat in run_list:
             
     #save the error for the GNN, the MLE and save the name of the distribution the GNN was trained on
     hists.append((hist_preds,hist_mles,trainset.get_distribution_label()))
-
 
 
 
@@ -333,27 +329,4 @@ for i in range(len(hists)):
         pylab.savefig('saved_plots/Hist'+name_of_dist+'.png')
     if control["display_plts_hist"]:
         plt.show()
-
-
-
-
-
-
-
-
-    # y_vals=hists[i]
-    # plt.subplot(2,2,i+1)
-    # bins=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
-    # plt.hist(y_vals,bins,alpha=0.5)
-    # ax = plt.gca()
-    # ax.set_facecolor('#D9E6E8')
-    # plt.xlabel(r"$\sqrt{MSE}$")
-    # plt.title(run_list[i][3]+' '+'(%f,%f)'%(run_list[i][4][0],run_list[i]dat[4][1]) )
-
-
-
-
-
-
-
 
