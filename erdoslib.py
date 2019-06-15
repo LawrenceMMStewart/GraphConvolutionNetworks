@@ -184,7 +184,7 @@ class ERdat(object):
 		Plot of graph
 		"""
 		plt.figure(figsize=(14, 8))  
-		plt.suptitle(r"$p$ value sampled from %s [%.2f ,%.2f ] "%(self.distribution,self.metaparams[0],self.metaparams[1]))
+		# plt.suptitle(r"$p$ value sampled from %s [%.2f ,%.2f ] "%(self.distribution,self.metaparams[0],self.metaparams[1]))
 		for i in range(6):
 			plt.subplot(2,3,i+1)
 			samp=self.__getitem__(i)
@@ -199,7 +199,9 @@ class ERdat(object):
 				top=False,         # ticks along the top edge are off
 				labelbottom=False, # labels along y axis are turned off
 				labelleft=False)   # labels along the bottom edge  are turned off
-		pylab.savefig('saved_plots/Sample %s [%.2f ,%.2f ] .png'%(self.distribution,self.metaparams[0],self.metaparams[1]))
+		name='saved_plots/%s%.1f%.1f%i%i'%(self.distribution,self.metaparams[0],self.metaparams[1],self.min_num_v,self.max_num_v)
+		name=name.replace(".","")
+		pylab.savefig(name)
 		plt.show()
 
 

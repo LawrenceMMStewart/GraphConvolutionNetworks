@@ -70,6 +70,12 @@ class GCN(nn.Module):
         g.apply_nodes(func=self.apply_mod)
         return g.ndata.pop('h')
 
+
+
+
+
+                                       
+
 """
 Initial node features to be their degrees.]
 After two rounds of graph convolution, perform a graph readout by averaging over all 
@@ -79,13 +85,6 @@ In DGL, dgl.mean_nodes() handles this task for a batch of graphs with variable
 size. We then feed our graph representations into a classifier that predicts the value of p
 
 """
-
-
-
-
-                                       
-
-#classifier 1 is a 2 layer (or 1 hidden layer) classical GCN.
 
 class Classifier(nn.Module):
     def __init__(self, in_dim, hidden_dim):
@@ -269,10 +268,10 @@ for dat in run_list:
     #write min loss:
     if control['write_min']:
         f.write("--------------------------------"+'\n')
-        f.write("minimum loss reached on trainset "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(min(epoch_losses))+'\n')
+        f.write("minimum sqrt loss reached on trainset "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(min(epoch_losses))+'\n')
         f.write("--------------------------------"+'\n')
     if control['write_test_loss']:
-        f.write("MSE for testset prediction "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(loss_func(pred_Y.detach(),test_Y).numpy())+'\n')
+        f.write("sqrt MSE for testset prediction "+dat[3]+' '+'(%f,%f)'%(dat[4][0],dat[4][1])+ ' =  %f' %(np.sqrt(loss_func(pred_Y.detach(),test_Y).numpy()))+'\n')
 
 
 

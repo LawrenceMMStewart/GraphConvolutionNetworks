@@ -1,4 +1,16 @@
-minimum loss reached for Uniform (0.000000,1.000000) =  0.032764
-minimum loss reached for Normal (0.500000,0.100000) =  0.006918
-minimum loss reached for Normal (0.800000,0.100000) =  0.008510
-minimum loss reached for Normal (0.200000,0.100000) =  0.004379
+--------------------------------
+minimum loss reached on trainset Uniform (0.000000,1.000000) =  0.187243 
+--------------------------------
+MSE for testset prediction Uniform (0.000000,1.000000) =  0.047021 sqrt=0.21684
+--------------------------------
+minimum loss reached on trainset Normal (0.500000,0.100000) =  0.082973 
+--------------------------------
+MSE for testset prediction Normal (0.500000,0.100000) =  0.009210 sqrt = 0.09597
+--------------------------------
+minimum loss reached on trainset Normal (0.800000,0.100000) =  0.095112 
+--------------------------------
+MSE for testset prediction Normal (0.800000,0.100000) =  0.016222 sqrt = 0.127366
+--------------------------------
+minimum loss reached on trainset Normal (0.200000,0.100000) =  0.065084 
+--------------------------------
+MSE for testset prediction Normal (0.200000,0.100000) =  0.006123 sqrt=0.07824
